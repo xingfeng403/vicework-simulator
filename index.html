@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>副业前端模拟器</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">纯前端副业训练场</p>
+        <h1>假装接单，真的练手</h1>
+      </div>
+      <div class="stats-inline">
+        <div class="chip">
+          <span>累计虚拟收益</span>
+          <strong id="totalIncome">¥0</strong>
+        </div>
+        <div class="chip">
+          <span>已完成任务</span>
+          <strong id="completedCount">0</strong>
+        </div>
+        <div class="chip">
+          <span>连续完成</span>
+          <strong id="streakCount">0 天</strong>
+        </div>
+      </div>
+    </header>
+
+    <main class="grid">
+      <section class="panel task-panel">
+        <div class="panel-header">
+          <div>
+            <p class="panel-kicker">任务池</p>
+            <h2>今日可接项目</h2>
+          </div>
+          <button id="refreshTasksBtn" class="ghost-btn">刷新任务</button>
+        </div>
+        <div id="taskList" class="task-list"></div>
+      </section>
+
+      <section class="panel mission-panel">
+        <div class="panel-header">
+          <div>
+            <p class="panel-kicker">进行中</p>
+            <h2>当前项目工作台</h2>
+          </div>
+          <span id="missionStatus" class="status-badge idle">待接单</span>
+        </div>
+
+        <div id="emptyMission" class="empty-state">
+          <h3>还没开始今天的模拟项目</h3>
+          <p>从左侧接一个前端任务，中间会进入倒计时和挑战模拟流程。</p>
+        </div>
+
+        <div id="activeMission" class="active-mission hidden">
+          <div class="hero-card">
+            <div>
+              <p class="tiny-label">项目名称</p>
+              <h3 id="activeTaskTitle">-</h3>
+              <p id="activeTaskMeta" class="subtle">-</p>
+            </div>
+            <div class="reward-box">
+              <span>预计收益</span>
+              <strong id="activeTaskReward">¥0</strong>
+            </div>
+          </div>
+
+          <div class="timer-card">
+            <p class="tiny-label">剩余时间</p>
+            <div id="countdown" class="countdown">00:00</div>
+            <div class="progress-track">
+              <div id="timerProgress" class="progress-bar"></div>
+            </div>
+            <p id="timerHint" class="subtle">演示模式下 1 秒 = 1 分钟</p>
+            <div class="timer-actions">
+              <button id="pauseTimerBtn" class="ghost-btn">暂停</button>
+              <button id="completeNowBtn" class="primary-btn">立即交付</button>
+            </div>
+          </div>
+
+          <div class="mid-grid">
+            <div class="subpanel">
+              <div class="subpanel-head">
+                <div>
+                  <p class="panel-kicker">难点设计</p>
+                  <h3>项目难度拆解</h3>
+                </div>
+              </div>
+              <p class="subtle">把你最可能被追问的实现难点先写出来，模拟真正做项目时的技术压力。</p>
+              <form id="challengeForm" class="inline-form">
+                <input id="challengeInput" type="text" placeholder="例：大表格渲染卡顿，如何做虚拟列表优化">
+                <button class="primary-btn" type="submit">添加难点</button>
+              </form>
+              <ul id="challengeList" class="bullet-list"></ul>
+            </div>
+
+            <div class="subpanel">
+              <div class="subpanel-head">
+                <div>
+                  <p class="panel-kicker">质疑设计</p>
+                  <h3>模拟面试追问</h3>
+                </div>
+              </div>
+              <p class="subtle">把面试官或甲方最可能质疑你的点也提前列出来，比如方案选择、性能、边界情况。</p>
+              <form id="objectionForm" class="inline-form">
+                <input id="objectionInput" type="text" placeholder="例：为什么不用 Next.js 而选择纯 React SPA">
+                <button class="primary-btn" type="submit">添加质疑</button>
+              </form>
+              <ul id="objectionList" class="bullet-list"></ul>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="subpanel history-panel">
+          <div class="subpanel-head">
+            <div>
+              <p class="panel-kicker">结算记录</p>
+              <h3>最近完成</h3>
+            </div>
+          </div>
+          <div id="historyList" class="history-list"></div>
+        </div>
+      </section>
+
+      <section class="panel simulator-panel">
+        <div class="panel-header">
+          <div>
+            <p class="panel-kicker">应试训练</p>
+            <h2>难度与质疑模拟</h2>
+          </div>
+        </div>
+
+        <div class="subpanel settings-card">
+          <div class="settings-row">
+            <label for="simMode">模拟模式</label>
+            <select id="simMode">
+              <option value="local">本地免费模拟</option>
+              <option value="ai">AI 接口生成</option>
+            </select>
+          </div>
+          <div class="settings-row">
+            <label for="apiEndpoint">接口地址</label>
+            <input id="apiEndpoint" type="text" placeholder="https://api.deepseek.com/v1/chat/completions">
+          </div>
+          <div class="settings-row">
+            <label for="apiModel">模型名</label>
+            <input id="apiModel" type="text" placeholder="deepseek-chat">
+          </div>
+          <div class="settings-row">
+            <label for="apiKey">API Key</label>
+            <input id="apiKey" type="password" placeholder="仅保存在本地浏览器">
+          </div>
+          <p class="subtle">不填也能用，本地模式会直接生成免费的模拟问题；填了后可以用兼容 OpenAI 的接口来生成更强的追问。</p>
+        </div>
+
+        <div class="subpanel">
+          <div class="subpanel-head">
+            <div>
+              <p class="panel-kicker">项目背景</p>
+              <h3>你的项目说明</h3>
+            </div>
+          </div>
+          <textarea id="projectContext" rows="7" placeholder="例：我接了一个 React 中后台项目，需要做权限路由、复杂表单、导出和大表格渲染。希望训练性能优化、状态管理、异常处理等追问。"></textarea>
+          <div class="action-row">
+            <button id="generateQuestionsBtn" class="primary-btn">生成模拟追问</button>
+            <button id="clearQuestionsBtn" class="ghost-btn">清空结果</button>
+          </div>
+        </div>
+
+        <div class="subpanel">
+          <div class="subpanel-head">
+            <div>
+              <p class="panel-kicker">模拟结果</p>
+              <h3>面试官质疑清单</h3>
+            </div>
+          </div>
+          <div id="questionStatus" class="subtle">还没开始生成。</div>
+          <div id="questionList" class="qa-list"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="settlementModal" class="modal hidden">
+    <div class="modal-card">
+      <p class="panel-kicker">任务已验收</p>
+      <h2 id="settlementTitle">交付成功</h2>
+      <p id="settlementText" class="subtle"></p>
+      <div class="settlement-stats">
+        <div>
+          <span>本次收益</span>
+          <strong id="settlementIncome">¥0</strong>
+        </div>
+        <div>
+          <span>累计收益</span>
+          <strong id="settlementTotal">¥0</strong>
+        </div>
+      </div>
+      <button id="closeModalBtn" class="primary-btn wide-btn">继续接单</button>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
